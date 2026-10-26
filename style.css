@@ -163,4 +163,14 @@ button:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3
     width: calc(100% - 24px);
     max-height: 55%;
   }
+  /* Fejlsøgning: sørg for at boksen ligger over kortet */
+#infoPanel {
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+}
+
+.map-hotspot {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
 }
