@@ -228,6 +228,7 @@ wrapper.appendChild(selection);
 
     updateCoordinates(item);
     setEditorStatus("Valgt element: " + item.title);
+    elements.forEach(refreshElement);
   }
 
   function syncFields() {
