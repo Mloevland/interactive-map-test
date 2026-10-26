@@ -1,35 +1,60 @@
+
 <!doctype html>
 <html lang="da">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Historisk kort — zoomtest</title>
-  <link rel="preconnect" href="https://www.davidrumsey.com">
   <style>
-    :root { color-scheme: dark; --bg: #101110; --panel: #1b1d1b; --text: #f3f0e8; --muted: #b6b7ae; --line: #393c37; }
     * { box-sizing: border-box; }
     html, body { height: 100%; margin: 0; }
-    body { font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+    body {
+      font: 15px/1.45 system-ui, sans-serif;
+      background: #101110;
+      color: #f3f0e8;
+    }
     .app { height: 100%; display: flex; flex-direction: column; }
-    header { min-height: 66px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
-    .eyebrow { text-transform: uppercase; letter-spacing: .13em; color: var(--muted); font-size: 10px; }
-    h1 { font-size: 17px; font-weight: 600; margin: 2px 0 0; }
+    header {
+      padding: 12px 18px;
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+      border-bottom: 1px solid #393c37;
+      background: #1b1d1b;
+    }
+    .eyebrow {
+      text-transform: uppercase; letter-spacing: .13em;
+      color: #b6b7ae; font-size: 10px;
+    }
+    h1 { font-size: 17px; margin: 2px 0 0; }
     .controls { display: flex; flex-wrap: wrap; gap: 8px; }
-    button { border: 1px solid #555950; border-radius: 999px; background: #282b27; color: var(--text); padding: 9px 13px; font: inherit; cursor: pointer; }
+    button {
+      border: 1px solid #555950; border-radius: 999px;
+      background: #282b27; color: #f3f0e8;
+      padding: 9px 13px; font: inherit; cursor: pointer;
+    }
     button:hover { background: #383c36; }
-    button:focus-visible { outline: 2px solid #e8d5a3; outline-offset: 2px; }
     #viewer { flex: 1; min-height: 220px; background: #171815; }
-    footer { padding: 9px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    footer {
+      padding: 9px 16px; border-top: 1px solid #393c37;
+      color: #b6b7ae; font-size: 12px;
+      display: flex; justify-content: space-between; gap: 12px;
+    }
     #status { color: #e8d5a3; }
-    .notice { position: absolute; z-index: 10; left: 50%; top: 84px; transform: translateX(-50%); width: min(560px, calc(100% - 28px)); background: #20221f; border: 1px solid #555950; border-radius: 12px; padding: 14px 16px; box-shadow: 0 12px 40px #0008; }
-    .notice strong { display: block; margin-bottom: 4px; }
-    .notice p { margin: 4px 0 10px; color: var(--muted); font-size: 13px; }
-    .notice a { color: #e8d5a3; }
+    #notice {
+      position: absolute; z-index: 10; left: 50%; top: 84px;
+      transform: translateX(-50%); width: min(560px, calc(100% - 28px));
+      background: #20221f; border: 1px solid #555950;
+      border-radius: 12px; padding: 14px 16px;
+      box-shadow: 0 12px 40px #0008;
+    }
+    #notice p { color: #b6b7ae; font-size: 13px; }
+    #notice a { color: #e8d5a3; }
     .hidden { display: none; }
     @media (max-width: 560px) {
       header { align-items: flex-start; flex-direction: column; }
       .controls { width: 100%; }
       button { flex: 1; }
+      footer { flex-wrap: wrap; }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/openseadragon.min.js"></script>
@@ -41,70 +66,99 @@
       <div class="eyebrow">Prototype · 01</div>
       <h1>Historisk kort — zoomtest</h1>
     </div>
-    <div class="controls" aria-label="Kortværktøjer">
-      <button id="zoomIn" type="button" aria-label="Zoom ind">＋ Zoom ind</button>
-      <button id="zoomOut" type="button" aria-label="Zoom ud">− Zoom ud</button>
-      <button id="home" type="button">Nulstil visning</button>
+    <div class="controls">
+      <button id="zoomIn">＋ Zoom ind</button>
+      <button id="zoomOut">− Zoom ud</button>
+      <button id="home">Nulstil visning</button>
     </div>
   </header>
-  <div id="viewer" aria-label="Interaktivt historisk kort"></div>
-  <div id="notice" class="notice">
+
+  <div id="viewer"></div>
+
+  <div id="notice">
     <strong>Indlæser kortet…</strong>
-    <p>Vi tester, om David Rumseys IIIF-billedservice kan åbnes direkte i denne prototype.</p>
-    <p id="noticeDetail">Hvis kortet ikke indlæses, kan det skyldes, at billedadressen skal findes i manifestet, eller at serveren begrænser adgang fra andre hjemmesider.</p>
-    <p><a href="https://www.davidrumsey.com/uv/index.html?manifestUrl=https%3A%2F%2Fwww.davidrumsey.com%2Fluna%2Fservlet%2Fiiif%2Fm%2FRUMSEY%7E8%7E1%7E303662%7E90074315%2Fmanifest" target="_blank" rel="noopener">Åbn originalkortet hos David Rumsey ↗</a></p>
+    <p id="noticeDetail">
+      Vi forsøger at indlæse det højopløselige kort fra David Rumsey.
+    </p>
+    <p>
+      <a href="https://www.davidrumsey.com/uv/index.html?manifestUrl=https%3A%2F%2Fwww.davidrumsey.com%2Fluna%2Fservlet%2Fiiif%2Fm%2FRUMSEY%7E8%7E1%7E303662%7E90074315%2Fmanifest"
+         target="_blank" rel="noopener">
+        Åbn originalkortet ↗
+      </a>
+    </p>
   </div>
+
   <footer>
-    <span>Træk for at flytte · scroll eller knapper for at zoome</span>
+    <span>Træk for at flytte · scroll for at zoome</span>
     <span id="status">Starter viewer…</span>
   </footer>
 </div>
+
 <script>
 (() => {
-  const manifestUrl = "https://www.davidrumsey.com/luna/servlet/iiif/m/RUMSEY~8~1~303662~90074315/manifest";
-  const serviceBase = manifestUrl.replace(/\/manifest\/?$/, "");
-  const infoUrl = serviceBase + "/info.json";
+  const imageService =
+    "https://www.davidrumsey.com/luna/servlet/iiif/RUMSEY~8~1~303662~90074315";
+
   const notice = document.getElementById("notice");
   const status = document.getElementById("status");
   const detail = document.getElementById("noticeDetail");
 
   if (!window.OpenSeadragon) {
-    status.textContent = "Kunne ikke hente OpenSeadragon";
-    detail.textContent = "Biblioteket kunne ikke indlæses. Kontrollér internetforbindelsen, og prøv igen.";
+    status.textContent = "Viewer kunne ikke indlæses";
+    detail.textContent = "Kontrollér din internetforbindelse, og prøv igen.";
     return;
   }
 
   const viewer = OpenSeadragon({
     id: "viewer",
-    prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/images/",
+    prefixUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/images/",
     showNavigator: true,
     navigatorPosition: "BOTTOM_RIGHT",
-    showRotationControl: false,
-    showHomeControl: false,
     showZoomControl: false,
+    showHomeControl: false,
     showFullPageControl: false,
     visibilityRatio: 0.5,
-    minZoomLevel: 0.5,
     maxZoomPixelRatio: 3,
-    gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: true, scrollToZoom: true, dragToPan: true },
-    tileSources: infoUrl
+    gestureSettingsMouse: {
+      clickToZoom: false,
+      dblClickToZoom: true,
+      scrollToZoom: true,
+      dragToPan: true
+    },
+    tileSources: {
+      "@context": "http://iiif.io/api/image/2/context.json",
+      "@id": imageService,
+      "protocol": "http://iiif.io/api/image",
+      "profile": "http://iiif.io/api/image/2/level1.json",
+      "width": 62079,
+      "height": 62160,
+      "tile_width": 1024,
+      "tile_height": 1024,
+      "scale_factors": [1, 2, 4, 8, 16, 32, 64]
+    }
   });
 
   viewer.addHandler("open", () => {
     notice.classList.add("hidden");
-    status.textContent = "Kort indlæst · zoom og panorering klar";
+    status.textContent = "Kort indlæst · klar til brug";
   });
 
-  viewer.addHandler("open-failed", (event) => {
+  viewer.addHandler("open-failed", () => {
     notice.classList.remove("hidden");
-    status.textContent = "Kortet kunne ikke indlæses automatisk";
-    detail.textContent = "Viewerens forsøg på at åbne " + infoUrl + " mislykkedes. Det kan være en forkert IIIF-adresse eller en serverbegrænsning. Næste trin er at hente den præcise billedservice fra manifestet.";
-    console.error("OpenSeadragon open-failed", event);
+    status.textContent = "Kortet kunne ikke indlæses";
+    detail.textContent =
+      "Billedadressen blev forsøgt åbnet, men fejlede. Vi skal muligvis tilpasse forbindelsen til David Rumseys billedserver.";
   });
 
-  document.getElementById("zoomIn").addEventListener("click", () => viewer.viewport.zoomBy(1.5));
-  document.getElementById("zoomOut").addEventListener("click", () => viewer.viewport.zoomBy(1 / 1.5));
-  document.getElementById("home").addEventListener("click", () => viewer.viewport.goHome());
+  document.getElementById("zoomIn").onclick =
+    () => viewer.viewport.zoomBy(1.5);
+
+  document.getElementById("zoomOut").onclick =
+    () => viewer.viewport.zoomBy(1 / 1.5);
+
+  document.getElementById("home").onclick =
+    () => viewer.viewport.goHome();
 })();
 </script>
 </body>
