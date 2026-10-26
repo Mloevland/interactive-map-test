@@ -1,5 +1,4 @@
-
-/* INTERAKTIONER — hotspots og informationsbokse */
+/* INTERAKTIONER — klik, hover og informationspanel */
 (() => {
   const infoPanel = document.getElementById("infoPanel");
   const closePanel = document.getElementById("closePanel");
@@ -10,9 +9,12 @@
       number: "1",
       title: "Kanin",
       category: "Dyr",
-      text: "En lille opdagelse på det historiske kort. Teksten kan senere udskiftes med jeres egen research.",
+      text: "En lille opdagelse på det historiske kort. Teksten er midlertidig og kan udskiftes med jeres egen research.",
       x: 0.23,
-      y: 0.29
+      y: 0.29,
+      // Når I har en fritlagt PNG, læg den i assets/rabbit.png og skift showArt til true.
+      image: "assets/rabbit.png",
+      showArt: false
     }
   ];
 
@@ -21,6 +23,15 @@
     document.getElementById("infoTitle").textContent = item.title;
     document.getElementById("infoCopy").textContent = item.text;
     infoPanel.classList.remove("is-hidden");
+    infoPanel.style.display = "block";
+    infoPanel.style.visibility = "visible";
+    infoPanel.style.zIndex = "99999";
+  }
+
+  function stopMapGestures(element) {
+    ["pointerdown", "mousedown", "touchstart", "dblclick"].forEach(type => {
+      element.addEventListener(type, event => event.stopPropagation());
+    });
   }
 
   document.addEventListener("map:ready", event => {
@@ -34,48 +45,58 @@
       marker.textContent = item.number;
       marker.setAttribute("aria-label", `Åbn information om ${item.title}`);
       marker.title = `${item.title} — klik for information`;
-      marker.style.pointerEvents = "auto";
-      marker.style.position = "relative";
-      marker.style.zIndex = "1000";
 
-      // Stop kortets navigationsfunktion fra at opfange knapinteraktioner.
-      ["pointerdown", "mousedown", "touchstart", "dblclick"].forEach(type => {
-        marker.addEventListener(type, e => e.stopPropagation());
+      const label = document.createElement("span");
+      label.className = "hotspot-label";
+      label.textContent = item.title;
+      marker.appendChild(label);
+
+      stopMapGestures(marker);
+      marker.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        showItem(item);
       });
 
-marker.onclick = function(e) {
-  e.preventDefault();
-  e.stopPropagation();
-
-  showItem(item);
-
-  // Tving informationsboksen frem under testen
-  infoPanel.style.display = "block";
-  infoPanel.style.visibility = "visible";
-  infoPanel.style.zIndex = "99999";
-
-  console.log("Hotspot klikket:", item.title);
-};
-
-      const imagePoint = new OpenSeadragon.Point(
-        item.x * map.imageWidth,
-        item.y * map.imageHeight
-      );
-
-      const viewportPoint =
-        viewer.viewport.imageToViewportCoordinates(imagePoint);
-
+      const point = new OpenSeadragon.Point(item.x * map.imageWidth, item.y * map.imageHeight);
       viewer.addOverlay({
         element: marker,
-        location: viewportPoint,
+        location: viewer.viewport.imageToViewportCoordinates(point),
         placement: OpenSeadragon.Placement.CENTER
       });
+
+      // Aktiveres, når der findes et transparent motiv i assets/.
+      if (item.showArt) {
+        const artButton = document.createElement("button");
+        artButton.type = "button";
+        artButton.className = "map-art-object";
+        artButton.setAttribute("aria-label", `Åbn information om ${item.title}`);
+        const img = document.createElement("img");
+        img.src = item.image;
+        img.alt = item.title;
+        artButton.appendChild(img);
+        stopMapGestures(artButton);
+        artButton.addEventListener("click", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          showItem(item);
+        });
+
+        viewer.addOverlay({
+          element: artButton,
+          location: viewer.viewport.imageToViewportCoordinates(
+            new OpenSeadragon.Point(item.x * map.imageWidth, item.y * map.imageHeight)
+          ),
+          placement: OpenSeadragon.Placement.CENTER
+        });
+      }
     });
   });
 
-  closePanel.addEventListener("click", e => {
-    e.preventDefault();
-    e.stopPropagation();
+  closePanel.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
     infoPanel.classList.add("is-hidden");
+    infoPanel.style.display = "";
   });
 })();

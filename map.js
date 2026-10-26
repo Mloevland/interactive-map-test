@@ -1,4 +1,4 @@
-/* KORTMOTOR — zoom, panorering og placering af hotspots */
+/* KORTMOTOR — bevar zoom og panorering */
 (() => {
   const imageService = "https://www.davidrumsey.com/luna/servlet/iiif/RUMSEY~8~1~303662~90074315";
   const notice = document.getElementById("notice");
@@ -42,7 +42,7 @@
 
   viewer.addHandler("open", () => {
     notice.classList.add("is-hidden");
-    status.textContent = "Kort indlæst · klik på punktet";
+    status.textContent = "Kort indlæst · hold musen over punktet";
     document.dispatchEvent(new CustomEvent("map:ready", { detail: { viewer } }));
   });
 
@@ -56,6 +56,5 @@
   document.getElementById("zoomOut").addEventListener("click", () => viewer.viewport.zoomBy(1 / 1.5));
   document.getElementById("home").addEventListener("click", () => viewer.viewport.goHome());
 
-  // Gør viewer tilgængelig for interaktionsmodulet uden at blande filerne sammen.
   window.mapPrototype = { viewer, imageWidth: 62079, imageHeight: 62160 };
 })();
