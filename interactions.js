@@ -1,31 +1,67 @@
-/* INTERAKTIONER — klik, hover og informationspanel */
+
 (() => {
-  const infoPanel = document.getElementById("infoPanel");
-  const closePanel = document.getElementById("closePanel");
+  const $ = id => document.getElementById(id);
 
-  const items = [
-    {
-      id: "rabbit",
-      number: "1",
-      title: "Kanin",
-      category: "Dyr",
-      text: "En lille opdagelse på det historiske kort. Teksten er midlertidig og kan udskiftes med jeres egen research.",
-      x: 0.23,
-      y: 0.29,
-      // Når I har en fritlagt PNG, læg den i assets/rabbit.png og skift showArt til true.
-      image: "assets/rabbit.png",
-      showArt: false
-    }
-  ];
+  const passwordPanel = $("passwordPanel");
+  const passwordForm = $("passwordForm");
+  const passwordInput = $("passwordInput");
+  const passwordError = $("passwordError");
+  const editorPanel = $("editorPanel");
+  const infoPanel = $("infoPanel");
 
-  function showItem(item) {
-    document.getElementById("infoCategory").textContent = item.category;
-    document.getElementById("infoTitle").textContent = item.title;
-    document.getElementById("infoCopy").textContent = item.text;
-    infoPanel.classList.remove("is-hidden");
-    infoPanel.style.display = "block";
-    infoPanel.style.visibility = "visible";
-    infoPanel.style.zIndex = "99999";
+  let viewer = null;
+  let unlocked = false;
+  let editMode = false;
+  let selectedId = "rabbit";
+  let nextNumber = 2;
+  let elements = [];
+  const overlays = new Map();
+
+  const starter = {
+    id: "rabbit",
+    number: 1,
+    title: "Kanin",
+    category: "Dyr",
+    text: "Her kommer information om elementet.",
+    image: "",
+    x: 0.23 * 62079,
+    y: 0.29 * 62160,
+    showMarker: true,
+    showArt: false,
+    showHover: true,
+    artSize: 140
+  };
+
+  try {
+    const saved = localStorage.getItem("historicalMapElements");
+    elements = saved ? JSON.parse(saved) : [starter];
+  } catch (_) {
+    elements = [starter];
+  }
+
+  function save() {
+    try {
+      localStorage.setItem("historicalMapElements", JSON.stringify(elements));
+    } catch (_) {}
+  }
+
+  function selected() {
+    return elements.find(item => item.id === selectedId) || elements[0];
+  }
+
+  function updateCoordinates(item) {
+    $("coordX").textContent = Math.round(item.x).toLocaleString("da-DK");
+    $("coordY").textContent = Math.round(item.y).toLocaleString("da-DK");
+  }
+
+  function setEditorStatus(message) {
+    $("editorStatus").textContent = message;
+  }
+
+  function makePoint(item) {
+    return viewer.viewport.imageToViewportCoordinates(
+      new OpenSeadragon.Point(item.x, item.y)
+    );
   }
 
   function stopMapGestures(element) {
@@ -34,69 +70,293 @@
     });
   }
 
-  document.addEventListener("map:ready", event => {
-    const viewer = event.detail.viewer;
-    const map = window.mapPrototype;
+  function openInfo(item) {
+    $("infoCategory").textContent = item.category;
+    $("infoTitle").textContent = item.title;
+    $("infoCopy").textContent = item.text;
 
-    items.forEach(item => {
-      const marker = document.createElement("button");
-      marker.type = "button";
-      marker.className = "map-hotspot";
-      marker.textContent = item.number;
-      marker.setAttribute("aria-label", `Åbn information om ${item.title}`);
-      marker.title = `${item.title} — klik for information`;
+    const img = $("infoImage");
+    const placeholder = $("imagePlaceholder");
 
-      const label = document.createElement("span");
-      label.className = "hotspot-label";
-      label.textContent = item.title;
-      marker.appendChild(label);
+    if (item.image) {
+      img.onload = () => {
+        img.classList.remove("is-hidden");
+        placeholder.classList.add("is-hidden");
+      };
+      img.onerror = () => {
+        img.classList.add("is-hidden");
+        placeholder.classList.remove("is-hidden");
+        placeholder.textContent = "Billedet kunne ikke indlæses.";
+      };
+      img.src = item.image;
+      img.alt = item.title;
+    } else {
+      img.classList.add("is-hidden");
+      placeholder.classList.remove("is-hidden");
+      placeholder.textContent = "Billede tilføjes senere";
+    }
 
-      stopMapGestures(marker);
-      marker.addEventListener("click", event => {
+    infoPanel.classList.remove("is-hidden");
+  }
+
+  function createOverlay(item) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "element-overlay";
+
+    const marker = document.createElement("button");
+    marker.type = "button";
+    marker.className = "map-hotspot";
+    marker.textContent = item.number;
+    marker.title = item.title;
+
+    const art = document.createElement("button");
+    art.type = "button";
+    art.className = "map-art-object";
+
+    const img = document.createElement("img");
+    img.alt = item.title;
+    art.appendChild(img);
+
+    [marker, art].forEach(button => {
+      stopMapGestures(button);
+      button.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
-        showItem(item);
+
+        if (editMode) {
+          selectElement(item.id);
+        } else {
+          openInfo(item);
+        }
       });
 
-      const point = new OpenSeadragon.Point(item.x * map.imageWidth, item.y * map.imageHeight);
-      viewer.addOverlay({
-        element: marker,
-        location: viewer.viewport.imageToViewportCoordinates(point),
-        placement: OpenSeadragon.Placement.CENTER
+      button.addEventListener("pointerdown", event => {
+        if (!editMode || event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        button.setPointerCapture?.(event.pointerId);
+
+        const move = moveEvent => {
+          if (!button.hasPointerCapture?.(moveEvent.pointerId)) return;
+          const rect = $("viewer").getBoundingClientRect();
+          const pixel = new OpenSeadragon.Point(
+            moveEvent.clientX - rect.left,
+            moveEvent.clientY - rect.top
+          );
+          const viewportPoint = viewer.viewport.pointFromPixel(pixel);
+          const imagePoint =
+            viewer.viewport.viewportToImageCoordinates(viewportPoint);
+
+          item.x = Math.max(0, Math.min(62079, imagePoint.x));
+          item.y = Math.max(0, Math.min(62160, imagePoint.y));
+          updatePosition(item);
+          updateCoordinates(item);
+          save();
+        };
+
+        const up = upEvent => {
+          button.removeEventListener("pointermove", move);
+          button.removeEventListener("pointerup", up);
+          setEditorStatus("Placering gemt i denne browser.");
+        };
+
+        button.addEventListener("pointermove", move);
+        button.addEventListener("pointerup", up);
       });
-
-      // Aktiveres, når der findes et transparent motiv i assets/.
-      if (item.showArt) {
-        const artButton = document.createElement("button");
-        artButton.type = "button";
-        artButton.className = "map-art-object";
-        artButton.setAttribute("aria-label", `Åbn information om ${item.title}`);
-        const img = document.createElement("img");
-        img.src = item.image;
-        img.alt = item.title;
-        artButton.appendChild(img);
-        stopMapGestures(artButton);
-        artButton.addEventListener("click", event => {
-          event.preventDefault();
-          event.stopPropagation();
-          showItem(item);
-        });
-
-        viewer.addOverlay({
-          element: artButton,
-          location: viewer.viewport.imageToViewportCoordinates(
-            new OpenSeadragon.Point(item.x * map.imageWidth, item.y * map.imageHeight)
-          ),
-          placement: OpenSeadragon.Placement.CENTER
-        });
-      }
     });
+
+    viewer.addOverlay({
+      element: wrapper,
+      location: makePoint(item),
+      placement: OpenSeadragon.Placement.CENTER
+    });
+
+    const record = { wrapper, marker, art, img };
+    overlays.set(item.id, record);
+    refreshElement(item);
+  }
+
+  function updatePosition(item) {
+    const record = overlays.get(item.id);
+    if (record) viewer.updateOverlay(record.wrapper, makePoint(item));
+  }
+
+  function refreshElement(item) {
+    const record = overlays.get(item.id);
+    if (!record) return;
+
+    const { wrapper, marker, art, img } = record;
+
+    wrapper.style.pointerEvents = "none";
+    marker.style.pointerEvents = item.showMarker ? "auto" : "none";
+    marker.classList.toggle("is-hidden", !item.showMarker);
+    marker.classList.toggle("no-hover", !item.showHover);
+    marker.textContent = item.number;
+    marker.title = item.title;
+
+    art.style.pointerEvents = item.showArt ? "auto" : "none";
+    art.classList.toggle("is-hidden", !item.showArt);
+    art.classList.toggle("hover-enabled", item.showHover);
+    art.style.width = item.artSize + "px";
+    art.style.height = Math.round(item.artSize * 0.72) + "px";
+
+    if (item.image && img.src !== item.image) img.src = item.image;
+    img.alt = item.title;
+  }
+
+  function selectElement(id) {
+    selectedId = id;
+    const item = selected();
+
+    $("elementTitle").value = item.title;
+    $("elementCategory").value = item.category;
+    $("elementText").value = item.text;
+    $("elementImage").value = item.image;
+    $("showMarker").checked = item.showMarker;
+    $("showArt").checked = item.showArt;
+    $("showHover").checked = item.showHover;
+    $("artSize").value = item.artSize;
+
+    updateCoordinates(item);
+    setEditorStatus("Valgt element: " + item.title);
+  }
+
+  function syncFields() {
+    const item = selected();
+    if (!item) return;
+
+    item.title = $("elementTitle").value;
+    item.category = $("elementCategory").value;
+    item.text = $("elementText").value;
+    item.image = $("elementImage").value.trim();
+    item.showMarker = $("showMarker").checked;
+    item.showArt = $("showArt").checked;
+    item.showHover = $("showHover").checked;
+    item.artSize = Number($("artSize").value);
+
+    refreshElement(item);
+    save();
+  }
+
+  function setEditMode(enabled) {
+    editMode = enabled;
+    editorPanel.classList.toggle("is-hidden", !enabled);
+    $("editingHint").classList.toggle("is-hidden", !enabled);
+    $("unlockEditor").textContent = enabled
+      ? "✓ Redigering aktiv"
+      : "✎ Redigér kort";
+
+    infoPanel.classList.add("is-hidden");
+
+    if (!enabled) {
+      setEditorStatus("Redigering afsluttet.");
+    } else {
+      selectElement(selectedId);
+      setEditorStatus("Klik på kortet for at placere det valgte element.");
+    }
+  }
+
+  $("unlockEditor").addEventListener("click", () => {
+    if (unlocked) {
+      setEditMode(!editMode);
+      return;
+    }
+
+    passwordPanel.classList.remove("is-hidden");
+    passwordInput.value = "";
+    passwordError.textContent = "";
+    passwordInput.focus();
   });
 
-  closePanel.addEventListener("click", event => {
+  passwordForm.addEventListener("submit", event => {
     event.preventDefault();
-    event.stopPropagation();
+
+    if (passwordInput.value === "Danmark") {
+      unlocked = true;
+      passwordPanel.classList.add("is-hidden");
+      setEditMode(true);
+    } else {
+      passwordError.textContent = "Forkert adgangskode. Prøv igen.";
+      passwordInput.select();
+    }
+  });
+
+  $("closePassword").addEventListener("click", () => {
+    passwordPanel.classList.add("is-hidden");
+  });
+
+  $("closeEditor").addEventListener("click", () => setEditMode(false));
+  $("lockEditor").addEventListener("click", () => setEditMode(false));
+
+  $("closeInfo").addEventListener("click", () => {
     infoPanel.classList.add("is-hidden");
-    infoPanel.style.display = "";
+  });
+
+  [
+    "elementTitle", "elementCategory", "elementText", "elementImage",
+    "showMarker", "showArt", "showHover", "artSize"
+  ].forEach(id => {
+    $(id).addEventListener("input", syncFields);
+    $(id).addEventListener("change", syncFields);
+  });
+
+  $("newElement").addEventListener("click", () => {
+    const item = {
+      ...starter,
+      id: "element-" + Date.now(),
+      number: nextNumber++,
+      title: "Nyt element",
+      category: "Andet",
+      text: "Skriv information her.",
+      x: 31039,
+      y: 31080,
+      showMarker: true,
+      showArt: false,
+      showHover: true,
+      artSize: 140
+    };
+
+    elements.push(item);
+    createOverlay(item);
+    save();
+    selectElement(item.id);
+    setEditorStatus("Nyt element oprettet. Klik på kortet for at placere det.");
+  });
+
+  $("exportElements").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(elements, null, 2)], {
+      type: "application/json"
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "kort-elementer.json";
+    link.click();
+    URL.revokeObjectURL(url);
+    setEditorStatus("JSON-fil eksporteret.");
+  });
+
+  document.addEventListener("map:ready", event => {
+    viewer = event.detail.viewer;
+    elements.forEach(createOverlay);
+
+    viewer.addHandler("canvas-click", mouseEvent => {
+      if (!editMode || mouseEvent.quick === false) return;
+
+      const item = selected();
+      if (!item) return;
+
+      const viewportPoint = viewer.viewport.pointFromPixel(mouseEvent.position);
+      const imagePoint =
+        viewer.viewport.viewportToImageCoordinates(viewportPoint);
+
+      item.x = Math.max(0, Math.min(62079, imagePoint.x));
+      item.y = Math.max(0, Math.min(62160, imagePoint.y));
+
+      updatePosition(item);
+      updateCoordinates(item);
+      save();
+      setEditorStatus("Placering opdateret.");
+    });
   });
 })();
