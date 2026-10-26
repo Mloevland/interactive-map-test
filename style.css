@@ -125,4 +125,188 @@ button:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3
   .map-controls { width: 100%; }
   .control-button { flex: 1; }
   .info-panel { top: auto; bottom: 12px; right: 12px; width: calc(100% - 24px); max-height: 55%; }
+  
+}
+
+/* ADGANGSKODE OG REDIGERINGSVÆRKTØJ */
+
+.floating-panel {
+  position: absolute;
+  z-index: 100001;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(380px, calc(100% - 32px));
+  padding: 24px;
+  color: #20221f;
+  background: #f6f1e6;
+  border: 1px solid #d7d0c1;
+  border-radius: 15px;
+  box-shadow: 0 15px 60px #000b;
+}
+
+.floating-panel h2 {
+  margin: 6px 0 10px;
+  font-size: 24px;
+}
+
+.floating-panel p {
+  font-size: 13px;
+  color: #64675f;
+}
+
+.panel-close {
+  float: right;
+}
+
+#passwordForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#passwordInput,
+.editor-panel input:not([type="checkbox"]):not([type="range"]),
+.editor-panel select,
+.editor-panel textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #c7c0b0;
+  border-radius: 7px;
+  background: #fffdf7;
+  color: #20221f;
+  font: inherit;
+}
+
+.primary-button {
+  background: #33372f;
+  color: white;
+  border-color: #33372f;
+}
+
+.error-message {
+  color: #a32626 !important;
+  font-weight: 600;
+}
+
+.editor-panel {
+  position: absolute;
+  z-index: 100000;
+  top: 16px;
+  right: 16px;
+  width: min(350px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+  padding: 18px;
+  background: #f6f1e6;
+  color: #20221f;
+  border: 1px solid #d7d0c1;
+  border-radius: 15px;
+  box-shadow: 0 12px 40px #0009;
+}
+
+.editor-panel h2 {
+  margin: 5px 0 14px;
+  font-size: 21px;
+}
+
+.field-label {
+  display: block;
+  margin: 12px 0 5px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd5c5;
+  font-size: 13px;
+}
+
+.setting-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #33372f;
+}
+
+.coordinate-readout {
+  margin: 12px 0;
+  padding: 10px;
+  background: #e9e2d3;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+.editor-status {
+  font-size: 12px;
+  color: #64675f;
+}
+
+.editing-hint {
+  position: absolute;
+  z-index: 50000;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 9px 14px;
+  background: #f2d98f;
+  color: #20221f;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+  text-align: center;
+}
+
+.element-overlay {
+  position: relative;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.element-overlay .map-hotspot,
+.element-overlay .map-art-object {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+}
+
+.element-overlay .map-art-object {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.element-overlay .map-art-object img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.element-overlay .map-art-object.hover-enabled:hover {
+  transform: translate(-50%, -50%) scale(1.12);
+  filter: drop-shadow(0 0 7px #f2d98f);
+}
+
+.element-overlay .map-hotspot.is-hidden,
+.element-overlay .map-art-object.is-hidden {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .editor-panel {
+    top: auto;
+    bottom: 10px;
+    right: 10px;
+    max-height: 65%;
+    width: calc(100% - 20px);
+  }
 }
