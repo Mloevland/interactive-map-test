@@ -100,8 +100,12 @@
   }
 
   function createOverlay(item) {
-    const wrapper = document.createElement("div");
-    wrapper.className = "element-overlay";
+const wrapper = document.createElement("div");
+wrapper.className = "element-overlay";
+
+const selection = document.createElement("div");
+selection.className = "selection-ring";
+wrapper.appendChild(selection);
 
     const marker = document.createElement("button");
     marker.type = "button";
@@ -171,7 +175,7 @@
       placement: OpenSeadragon.Placement.CENTER
     });
 
-    const record = { wrapper, marker, art, img };
+    const record = { wrapper, marker, art, img, selection };
     overlays.set(item.id, record);
     refreshElement(item);
   }
@@ -202,6 +206,11 @@
 
     if (item.image && img.src !== item.image) img.src = item.image;
     img.alt = item.title;
+    
+    record.selection.classList.toggle(
+  "is-active",
+  editMode && item.id === selectedId
+);
   }
 
   function selectElement(id) {
