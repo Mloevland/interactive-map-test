@@ -309,4 +309,44 @@ button:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3
     max-height: 65%;
     width: calc(100% - 20px);
   }
+  
+/* Sigtekorn for det valgte element */
+.selection-ring {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 46px;
+  height: 46px;
+  border: 2px solid #ff5c42;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 0 3px #ffffffaa;
+}
+
+.selection-ring::before,
+.selection-ring::after {
+  content: "";
+  position: absolute;
+  background: #ff5c42;
+}
+
+.selection-ring::before {
+  width: 64px;
+  height: 1px;
+  left: -11px;
+  top: 20px;
+}
+
+.selection-ring::after {
+  height: 64px;
+  width: 1px;
+  top: -11px;
+  left: 20px;
+}
+
+.selection-ring.is-active {
+  display: block;
+}
 }
