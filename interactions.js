@@ -43,11 +43,19 @@
         marker.addEventListener(type, e => e.stopPropagation());
       });
 
-      marker.addEventListener("click", e => {
-        e.preventDefault();
-        e.stopPropagation();
-        showItem(item);
-      });
+marker.onclick = function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  showItem(item);
+
+  // Tving informationsboksen frem under testen
+  infoPanel.style.display = "block";
+  infoPanel.style.visibility = "visible";
+  infoPanel.style.zIndex = "99999";
+
+  console.log("Hotspot klikket:", item.title);
+};
 
       const imagePoint = new OpenSeadragon.Point(
         item.x * map.imageWidth,
