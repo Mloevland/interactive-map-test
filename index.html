@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="da">
 <head>
@@ -10,46 +11,129 @@
   <script src="interactions.js" defer></script>
 </head>
 <body>
-  <div class="app">
-    <header class="site-header">
-      <div class="brand">
-        <div class="eyebrow">Interaktivt arkiv · Prototype</div>
-        <h1>Udforsk det historiske kort</h1>
-      </div>
-      <nav class="map-controls" aria-label="Kortværktøjer">
-        <button class="control-button" id="zoomIn" type="button">＋ Zoom ind</button>
-        <button class="control-button" id="zoomOut" type="button">− Zoom ud</button>
-        <button class="control-button" id="home" type="button">Nulstil visning</button>
-      </nav>
-    </header>
+<div class="app">
+  <header class="site-header">
+    <div class="brand">
+      <div class="eyebrow">Interaktivt arkiv · Prototype</div>
+      <h1>Udforsk det historiske kort</h1>
+    </div>
+    <nav class="map-controls">
+      <button class="control-button" id="zoomIn">＋ Zoom ind</button>
+      <button class="control-button" id="zoomOut">− Zoom ud</button>
+      <button class="control-button" id="home">Nulstil visning</button>
+      <button class="control-button" id="unlockEditor">✎ Redigér kort</button>
+    </nav>
+  </header>
 
-    <main id="viewer" aria-label="Interaktivt historisk kort">
-      <div class="notice" id="notice">
-        <strong>Indlæser kortet…</strong>
-        <p id="noticeText">Vi forsøger at hente det højopløselige kort fra David Rumsey.</p>
-        <p><a href="https://www.davidrumsey.com/uv/index.html?manifestUrl=https%3A%2F%2Fwww.davidrumsey.com%2Fluna%2Fservlet%2Fiiif%2Fm%2FRUMSEY%7E8%7E1%7E303662%7E90074315%2Fmanifest" target="_blank" rel="noopener">Åbn originalkortet ↗</a></p>
-      </div>
+  <main id="viewer">
+    <div class="notice" id="notice">
+      <strong>Indlæser kortet…</strong>
+      <p id="noticeText">Henter det historiske kort.</p>
+      <p><a href="https://www.davidrumsey.com/" target="_blank" rel="noopener">David Rumsey Map Collection ↗</a></p>
+    </div>
 
-      <aside class="info-panel is-hidden" id="infoPanel" aria-labelledby="infoTitle" aria-live="polite">
-        <div class="panel-header">
-          <div>
-            <div class="tag" id="infoCategory">Dyr</div>
-            <h2 id="infoTitle">Kanin</h2>
-          </div>
-          <button class="close-button" id="closePanel" type="button" aria-label="Luk informationsboks">×</button>
+    <div id="editingHint" class="editing-hint is-hidden">
+      REDIGERING AKTIV · Klik på kortet for at placere elementet
+    </div>
+
+    <aside id="infoPanel" class="info-panel is-hidden">
+      <div class="panel-header">
+        <div>
+          <div class="tag" id="infoCategory">Dyr</div>
+          <h2 id="infoTitle">Kanin</h2>
         </div>
-        <div class="image-placeholder" id="imagePlaceholder">
-          <span>Billede af kaninen kommer her<br><small>Brug en fritlagt PNG med transparent baggrund</small></span>
-        </div>
-        <p class="info-copy" id="infoCopy">En lille opdagelse på det historiske verdenskort. Teksten er midlertidig og kan udskiftes med jeres egen research.</p>
-        <p class="panel-hint">Klik på × for at vende tilbage til kortet.</p>
-      </aside>
-    </main>
+        <button class="close-button" id="closeInfo">×</button>
+      </div>
+      <img id="infoImage" class="info-image is-hidden" alt="">
+      <div id="imagePlaceholder" class="image-placeholder">
+        Billede tilføjes senere
+      </div>
+      <p id="infoCopy">Her kommer information om elementet.</p>
+    </aside>
 
-    <footer class="site-footer">
-      <span>Træk for at flytte · scroll for at zoome · hold musen over punktet</span>
-      <span id="status">Starter kort…</span>
-    </footer>
-  </div>
+    <section id="passwordPanel" class="floating-panel is-hidden">
+      <button class="close-button panel-close" id="closePassword">×</button>
+      <div class="tag">Redaktøradgang</div>
+      <h2>Redigér kortet</h2>
+      <p>Indtast adgangskoden for at ændre placeringer og elementer.</p>
+      <form id="passwordForm">
+        <input id="passwordInput" type="password"
+          placeholder="Adgangskode" autocomplete="off" required>
+        <button class="control-button primary-button" type="submit">
+          Lås op
+        </button>
+      </form>
+      <p id="passwordError" class="error-message" aria-live="polite"></p>
+    </section>
+
+    <section id="editorPanel" class="editor-panel is-hidden">
+      <div class="panel-header">
+        <div>
+          <div class="tag">Redigeringstilstand</div>
+          <h2>Elementindstillinger</h2>
+        </div>
+        <button class="close-button" id="closeEditor">×</button>
+      </div>
+
+      <label class="field-label" for="elementTitle">Titel</label>
+      <input id="elementTitle" value="Kanin">
+
+      <label class="field-label" for="elementCategory">Kategori</label>
+      <select id="elementCategory">
+        <option>Dyr</option>
+        <option>Lande</option>
+        <option>Personer</option>
+        <option>Steder</option>
+        <option>Andet</option>
+      </select>
+
+      <label class="field-label" for="elementText">Informationstekst</label>
+      <textarea id="elementText" rows="3">Her kommer information om elementet.</textarea>
+
+      <label class="field-label" for="elementImage">Billedsti eller billed-URL</label>
+      <input id="elementImage" placeholder="assets/kanin.png">
+
+      <label class="setting-row">
+        <span>Vis nummereret markør</span>
+        <input id="showMarker" type="checkbox" checked>
+      </label>
+      <label class="setting-row">
+        <span>Vis fritlagt motiv</span>
+        <input id="showArt" type="checkbox">
+      </label>
+      <label class="setting-row">
+        <span>Aktivér hover-effekt</span>
+        <input id="showHover" type="checkbox" checked>
+      </label>
+
+      <label class="field-label" for="artSize">Motivets størrelse</label>
+      <input id="artSize" type="range" min="40" max="300" value="140">
+
+      <div class="coordinate-readout">
+        X: <strong id="coordX">—</strong>
+        &nbsp; Y: <strong id="coordY">—</strong>
+      </div>
+
+      <button class="control-button primary-button" id="newElement" type="button">
+        + Nyt element
+      </button>
+      <button class="control-button" id="exportElements" type="button">
+        Eksportér elementer (JSON)
+      </button>
+      <button class="control-button" id="lockEditor" type="button">
+        Afslut redigering
+      </button>
+
+      <p id="editorStatus" class="editor-status">
+        Klik på kortet for at placere det valgte element.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span id="footerHint">Træk for at flytte · scroll for at zoome · klik på markører</span>
+    <span id="status">Starter kort…</span>
+  </footer>
+</div>
 </body>
 </html>
