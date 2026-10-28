@@ -117,7 +117,8 @@
     $("coordY").textContent = Math.round(item.y).toLocaleString("da-DK");
   }
 
-  // Billedmotivet skal skaleres med kortet, mens nummermarkøren forbliver læsbar.
+  // Billedmotivet følger kortets zoom uden en øvre størrelsesgrænse.
+  // Nummermarkørerne forbliver i fast CSS-størrelse og er derfor altid læsbare.
   // Størrelsesskyderen angiver motivets bredde ved ca. 5x kortets startzoom.
   const ART_REFERENCE_ZOOM = 5;
   let artResizeFrame = null;
@@ -127,14 +128,17 @@
     const homeZoom = viewer.viewport.getHomeZoom();
     const currentZoom = viewer.viewport.getZoom(true);
     if (!Number.isFinite(homeZoom) || homeZoom <= 0 || !Number.isFinite(currentZoom)) return 0.2;
-    return clamp(currentZoom / (homeZoom * ART_REFERENCE_ZOOM), 0.015, 3.5, 0.2);
+
+    // Kun en meget lille nedre grænse forhindrer billedet i at blive 0 px.
+    // Ingen øvre grænse: motivet fortsætter med at vokse ved kraftig zoom.
+    return Math.max(0.002, currentZoom / (homeZoom * ART_REFERENCE_ZOOM));
   }
 
   function updateArtSize(item, record) {
     if (!record || !record.art) return;
     const scale = scaleForCurrentZoom();
-    const width = clamp(item.artSize * scale, 3, 700, 28);
-    const height = clamp(item.artSize * 0.72 * scale, 2, 504, 20);
+    const width = Math.max(1, item.artSize * scale);
+    const height = Math.max(1, item.artSize * 0.72 * scale);
     record.art.style.width = `${width}px`;
     record.art.style.height = `${height}px`;
     record.img.style.transform = `rotate(${item.rotation || 0}deg)`;
