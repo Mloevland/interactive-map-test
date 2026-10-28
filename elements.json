@@ -8,7 +8,7 @@
     "image": "assets/rabbit.png",
     "x": 38333.12631710639,
     "y": 7541.059053223099,
-    "showMarker": false,
+    "showMarker": true,
     "showArt": true,
     "showHover": true,
     "artSize": 40,
