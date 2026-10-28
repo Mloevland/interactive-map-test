@@ -6,12 +6,42 @@
     "category": "Dyr",
     "text": "KANINNNG",
     "image": "assets/rabbit.png",
-    "x": 38333.12631710639,
-    "y": 7541.059053223099,
+    "x": 38306.12854477804,
+    "y": 7522.3571173841165,
     "showMarker": true,
     "showArt": true,
     "showHover": true,
     "artSize": 40,
-    "rotation": -153
+    "rotation": -151
+  },
+  {
+    "id": "element-1793184797929",
+    "number": 2,
+    "title": "Kong frederik",
+    "category": "Personer",
+    "text": "KONG fredderik",
+    "image": "",
+    "x": 53759.66841038281,
+    "y": 17867.032114464953,
+    "showMarker": true,
+    "showArt": false,
+    "showHover": true,
+    "artSize": 140,
+    "rotation": 0
+  },
+  {
+    "id": "element-1793184832232",
+    "number": 3,
+    "title": "Nyt sted",
+    "category": "Lande",
+    "text": "Skriv information her.",
+    "image": "",
+    "x": 36104.59263966342,
+    "y": 18935.79664319698,
+    "showMarker": true,
+    "showArt": false,
+    "showHover": true,
+    "artSize": 140,
+    "rotation": 0
   }
 ]
