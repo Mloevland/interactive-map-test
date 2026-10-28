@@ -120,6 +120,13 @@ wrapper.appendChild(selection);
     const img = document.createElement("img");
     img.alt = item.title;
     art.appendChild(img);
+    // Tilføj elementerne til overlayet, så de faktisk vises på kortet
+wrapper.appendChild(marker);
+wrapper.appendChild(art);
+
+// Sørg for, at sigtekornet ligger øverst
+const selection = wrapper.querySelector(".selection-ring");
+if (selection) wrapper.appendChild(selection);
 
     [marker, art].forEach(button => {
       stopMapGestures(button);
