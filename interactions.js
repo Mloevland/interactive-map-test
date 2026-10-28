@@ -354,23 +354,43 @@ wrapper.appendChild(art);
     viewer = event.detail.viewer;
     elements.forEach(createOverlay);
 
-    viewer.addHandler("canvas-click", mouseEvent => {
-      if (!editMode || mouseEvent.quick === false) return;
+    
+$("viewer").addEventListener("click", event => {
+  if (!viewer || !editMode) return;
 
-      const item = selected();
-      if (!item) return;
+  // Ignorér klik på paneler, knapper og eksisterende elementer
+  if (event.target.closest(
+    ".editor-panel, .site-header, .site-footer, .map-controls, " +
+    ".floating-panel, .info-panel, .map-hotspot, .map-art-object"
+  )) return;
 
-      const viewportPoint = viewer.viewport.pointFromPixel(mouseEvent.position);
-      const imagePoint =
-        viewer.viewport.viewportToImageCoordinates(viewportPoint);
+  const rect = viewer.container.getBoundingClientRect();
 
-      item.x = Math.max(0, Math.min(62079, imagePoint.x));
-      item.y = Math.max(0, Math.min(62160, imagePoint.y));
+  const pixel = new OpenSeadragon.Point(
+    event.clientX - rect.left,
+    event.clientY - rect.top
+  );
 
-      updatePosition(item);
-      updateCoordinates(item);
-      save();
-      setEditorStatus("Placering opdateret.");
-    });
+  const viewportPoint = viewer.viewport.pointFromPixel(pixel);
+  const imagePoint =
+    viewer.viewport.viewportToImageCoordinates(viewportPoint);
+
+  const item = selected();
+  if (!item) return;
+
+  item.x = Math.max(0, Math.min(62079, imagePoint.x));
+  item.y = Math.max(0, Math.min(62160, imagePoint.y));
+
+  updatePosition(item);
+  updateCoordinates(item);
+  elements.forEach(refreshElement);
+  save();
+
+  setEditorStatus(
+    "Placering opdateret: X " +
+    Math.round(item.x) + ", Y " + Math.round(item.y)
+  );
+});
+
   });
 })();
