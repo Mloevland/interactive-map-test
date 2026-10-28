@@ -206,8 +206,12 @@ wrapper.appendChild(art);
     art.style.pointerEvents = item.showArt ? "auto" : "none";
     art.classList.toggle("is-hidden", !item.showArt);
     art.classList.toggle("hover-enabled", item.showHover);
-    art.style.width = item.artSize + "px";
-    art.style.height = Math.round(item.artSize * 0.72) + "px";
+const zoom = viewer.viewport.getZoom(true);
+const baseZoom = viewer.viewport.getHomeZoom();
+const scale = zoom / baseZoom;
+
+art.style.width = Math.round(item.artSize * scale) + "px";
+art.style.height = Math.round(item.artSize * 0.72 * scale) + "px";
     img.style.transform = `rotate(${item.rotation || 0}deg)`;
     img.style.transformOrigin = "center";
 
