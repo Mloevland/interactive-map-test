@@ -117,32 +117,43 @@
     $("coordY").textContent = Math.round(item.y).toLocaleString("da-DK");
   }
 
+  // Billedmotivet skal skaleres med kortet, mens nummermarkøren forbliver læsbar.
+  // Størrelsesskyderen angiver motivets bredde ved ca. 5x kortets startzoom.
+  const ART_REFERENCE_ZOOM = 5;
+  let artResizeFrame = null;
+
   function scaleForCurrentZoom() {
-    if (!viewer || !viewer.viewport) return 1;
+    if (!viewer || !viewer.viewport) return 0.2;
     const homeZoom = viewer.viewport.getHomeZoom();
     const currentZoom = viewer.viewport.getZoom(true);
-    if (!Number.isFinite(homeZoom) || homeZoom <= 0 || !Number.isFinite(currentZoom)) return 1;
-    return clamp(currentZoom / homeZoom, 0.03, 20, 1);
+    if (!Number.isFinite(homeZoom) || homeZoom <= 0 || !Number.isFinite(currentZoom)) return 0.2;
+    return clamp(currentZoom / (homeZoom * ART_REFERENCE_ZOOM), 0.015, 3.5, 0.2);
   }
 
   function updateArtSize(item, record) {
     if (!record || !record.art) return;
     const scale = scaleForCurrentZoom();
-    // artSize is the desired width in CSS pixels at the map's home/normal zoom.
-    // Updating its CSS dimensions on every zoom makes the transparent PNG follow the map scale.
-    const width = Math.max(1, item.artSize * scale);
-    const height = Math.max(1, item.artSize * 0.72 * scale);
+    const width = clamp(item.artSize * scale, 3, 700, 28);
+    const height = clamp(item.artSize * 0.72 * scale, 2, 504, 20);
     record.art.style.width = `${width}px`;
     record.art.style.height = `${height}px`;
     record.img.style.transform = `rotate(${item.rotation || 0}deg)`;
     record.img.style.transformOrigin = "center center";
   }
 
+  // Throttle størrelseopdateringer til én pr. browserframe, så zoom forbliver flydende.
+  function scheduleArtResize() {
+    if (artResizeFrame !== null) return;
+    artResizeFrame = window.requestAnimationFrame(() => {
+      artResizeFrame = null;
+      for (const item of elements) updateArtSize(item, overlays.get(item.id));
+    });
+  }
+
   function applyCategoryVisibility(item, record) {
     const visible = activeCategory === "Alle" || item.category === activeCategory;
     record.marker.classList.toggle("category-hidden", !visible);
     record.art.classList.toggle("category-hidden", !visible);
-    record.selection.classList.toggle("category-hidden", !visible);
   }
 
   function refreshElement(item) {
@@ -169,7 +180,6 @@
     }
     record.img.alt = item.title;
 
-    record.selection.classList.toggle("is-active", editMode && item.id === (selected()?.id || null));
     applyCategoryVisibility(item, record);
     updateArtSize(item, record);
   }
@@ -185,7 +195,6 @@
     const point = makePoint(item);
     viewer.updateOverlay(record.marker, point);
     viewer.updateOverlay(record.art, point);
-    viewer.updateOverlay(record.selection, point);
   }
 
   function openInfo(item) {
@@ -291,10 +300,6 @@
     marker.textContent = item.number;
     marker.title = item.title;
 
-    const selection = document.createElement("div");
-    selection.className = "selection-ring";
-    selection.setAttribute("aria-hidden", "true");
-
     [art, marker].forEach((button) => {
       button.addEventListener("pointerdown", (event) => event.stopPropagation());
       button.addEventListener("mousedown", (event) => event.stopPropagation());
@@ -306,9 +311,8 @@
     const point = makePoint(item);
     viewer.addOverlay({ element: art, location: point, placement: OpenSeadragon.Placement.CENTER });
     viewer.addOverlay({ element: marker, location: point, placement: OpenSeadragon.Placement.CENTER });
-    viewer.addOverlay({ element: selection, location: point, placement: OpenSeadragon.Placement.CENTER });
 
-    overlays.set(item.id, { marker, art, img, selection });
+    overlays.set(item.id, { marker, art, img });
     refreshElement(item);
   }
 
@@ -393,7 +397,6 @@
       for (const record of overlays.values()) {
         viewer.removeOverlay(record.art);
         viewer.removeOverlay(record.marker);
-        viewer.removeOverlay(record.selection);
       }
     }
     overlays.clear();
@@ -478,7 +481,6 @@
     if (record && viewer) {
       viewer.removeOverlay(record.art);
       viewer.removeOverlay(record.marker);
-      viewer.removeOverlay(record.selection);
       overlays.delete(item.id);
     }
     elements = elements.filter((entry) => entry.id !== item.id);
@@ -515,12 +517,12 @@
 
     elements.forEach(createOverlay);
     viewer.addHandler("canvas-click", moveSelectedToCanvasClick);
-    const refreshZoomSizes = () => refreshAll();
-    viewer.addHandler("zoom", refreshZoomSizes);
-    viewer.addHandler("animation", refreshZoomSizes);
-    viewer.addHandler("resize", refreshZoomSizes);
-    viewer.addHandler("home", refreshZoomSizes);
-    viewer.addHandler("rotate", refreshZoomSizes);
+    viewer.addHandler("zoom", scheduleArtResize);
+    viewer.addHandler("animation", scheduleArtResize);
+    viewer.addHandler("animation-finish", scheduleArtResize);
+    viewer.addHandler("resize", scheduleArtResize);
+    viewer.addHandler("home", scheduleArtResize);
+    viewer.addHandler("rotate", scheduleArtResize);
     if (selected()) selectElement(selected().id);
     applyCategoryFilter();
   }
