@@ -309,7 +309,7 @@ button:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3
     right: 10px;
     max-height: 65%;
     width: calc(100% - 20px);
-  }
+  
   
 /* Sigtekorn for det valgte element */
 .selection-ring {
@@ -350,4 +350,4 @@ button:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3
 .selection-ring.is-active {
   display: block;
 }
-}
+
