@@ -35,13 +35,13 @@
     "title": "Nyt sted",
     "category": "Lande",
     "text": "Skriv information her.",
-    "image": "",
-    "x": 36104.59263966342,
-    "y": 18935.79664319698,
-    "showMarker": true,
-    "showArt": false,
+    "image": "assets/people.png",
+    "x": 36180.265914198135,
+    "y": 19224.96720602435,
+    "showMarker": false,
+    "showArt": true,
     "showHover": true,
-    "artSize": 140,
+    "artSize": 285,
     "rotation": 0
   }
 ]
