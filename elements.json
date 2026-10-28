@@ -43,5 +43,50 @@
     "showHover": true,
     "artSize": 285,
     "rotation": 0
+  },
+  {
+    "id": "element-1793187927317",
+    "number": 4,
+    "title": "GOAT",
+    "category": "Dyr",
+    "text": "Skriv information her.",
+    "image": "assets/goat.png",
+    "x": 42880.026950264284,
+    "y": 52501.45832308824,
+    "showMarker": true,
+    "showArt": true,
+    "showHover": true,
+    "artSize": 120,
+    "rotation": -24
+  },
+  {
+    "id": "element-1793187986094",
+    "number": 5,
+    "title": "Nyt sted",
+    "category": "Dyr",
+    "text": "Skriv information her.",
+    "image": "assets/bear.png",
+    "x": 54838.06132871475,
+    "y": 36708.577295751784,
+    "showMarker": true,
+    "showArt": true,
+    "showHover": true,
+    "artSize": 85,
+    "rotation": -88
+  },
+  {
+    "id": "element-1793188073909",
+    "number": 6,
+    "title": "Nyt sted",
+    "category": "Dyr",
+    "text": "Skriv information her.",
+    "image": "assets/cat.png",
+    "x": 11404.635383238918,
+    "y": 43299.28415393097,
+    "showMarker": true,
+    "showArt": true,
+    "showHover": true,
+    "artSize": 115,
+    "rotation": 57
   }
 ]
