@@ -29,7 +29,7 @@
     showMarker: true,
     showArt: false,
     showHover: true,
-    artSize: 140
+    artSize: 140,
     rotation: 0
   };
 
