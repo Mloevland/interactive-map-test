@@ -30,6 +30,7 @@
     showArt: false,
     showHover: true,
     artSize: 140
+    rotation: 0
   };
 
   try {
@@ -207,6 +208,8 @@ wrapper.appendChild(art);
     art.classList.toggle("hover-enabled", item.showHover);
     art.style.width = item.artSize + "px";
     art.style.height = Math.round(item.artSize * 0.72) + "px";
+    img.style.transform = `rotate(${item.rotation || 0}deg)`;
+    img.style.transformOrigin = "center";
 
     if (item.image && img.src !== item.image) img.src = item.image;
     img.alt = item.title;
@@ -229,6 +232,8 @@ wrapper.appendChild(art);
     $("showArt").checked = item.showArt;
     $("showHover").checked = item.showHover;
     $("artSize").value = item.artSize;
+    $("artRotation").value = item.rotation || 0;
+    $("rotationValue").textContent = (item.rotation || 0) + "°";
 
     updateCoordinates(item);
     setEditorStatus("Valgt element: " + item.title);
@@ -247,6 +252,8 @@ wrapper.appendChild(art);
     item.showArt = $("showArt").checked;
     item.showHover = $("showHover").checked;
     item.artSize = Number($("artSize").value);
+    item.rotation = Number($("artRotation").value);
+    $("rotationValue").textContent = item.rotation + "°";
 
     refreshElement(item);
     save();
@@ -308,7 +315,7 @@ wrapper.appendChild(art);
 
   [
     "elementTitle", "elementCategory", "elementText", "elementImage",
-    "showMarker", "showArt", "showHover", "artSize"
+    "showMarker", "showArt", "showHover", "artSize", "artRotation"
   ].forEach(id => {
     $(id).addEventListener("input", syncFields);
     $(id).addEventListener("change", syncFields);
@@ -336,6 +343,31 @@ wrapper.appendChild(art);
     selectElement(item.id);
     setEditorStatus("Nyt element oprettet. Klik på kortet for at placere det.");
   });
+
+$("deleteElement").addEventListener("click", () => {
+  const item = selected();
+  if (!item) return;
+
+  if (elements.length <= 1) {
+    setEditorStatus("Du skal beholde mindst ét element.");
+    return;
+  }
+
+  if (!confirm(`Vil du slette "${item.title}"?`)) return;
+
+  const record = overlays.get(item.id);
+  if (record) {
+    viewer.removeOverlay(record.wrapper);
+    overlays.delete(item.id);
+  }
+
+  elements = elements.filter(element => element.id !== item.id);
+  selectedId = elements[0].id;
+
+  save();
+  selectElement(selectedId);
+  setEditorStatus("Elementet er slettet.");
+});
 
   $("exportElements").addEventListener("click", () => {
     const blob = new Blob([JSON.stringify(elements, null, 2)], {
