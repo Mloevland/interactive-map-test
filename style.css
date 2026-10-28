@@ -42,16 +42,11 @@ h1 { margin: 2px 0 0; font-size: 18px; line-height: 1.25; font-weight: 650; }
 .map-hotspot { position: relative; width: 42px; height: 42px; display: grid; place-items: center; padding: 0; border: 2px solid #fff8df; border-radius: 50%; background: var(--accent); color: #171815; font-weight: 800; font-size: 14px; box-shadow: 0 2px 16px #000a; cursor: pointer; pointer-events: auto !important; z-index: 30; transition: box-shadow .16s ease, background .16s ease; }
 .map-hotspot:hover, .map-hotspot:focus-visible { background: #fff0bd; box-shadow: 0 0 0 7px #f2d98f44, 0 4px 20px #000b; }
 .map-hotspot.no-hover:hover { background: var(--accent); box-shadow: 0 2px 16px #000a; }
-.map-hotspot.category-hidden, .map-art-object.category-hidden, .selection-ring.category-hidden { display: none !important; }
+.map-hotspot.category-hidden, .map-art-object.category-hidden { display: none !important; }
 .map-art-object { display: grid; place-items: center; position: relative; margin: 0; padding: 0; border: 0; background: transparent; overflow: visible; cursor: pointer; pointer-events: auto !important; z-index: 20; }
 .map-art-object img { display: block; width: 100%; height: 100%; object-fit: contain; overflow: visible; transform-origin: center center; filter: drop-shadow(0 1px 2px #0007); pointer-events: none; }
 .map-art-object.hover-enabled:hover img, .map-art-object.hover-enabled:focus-visible img { filter: drop-shadow(0 0 5px #fff1bd) drop-shadow(0 0 8px var(--accent)); }
 .map-art-object:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.selection-ring { display: none; position: relative; width: 48px; height: 48px; border: 2px solid #ff5c42; border-radius: 50%; pointer-events: none; box-shadow: 0 0 0 3px #ffffffaa; z-index: 40; }
-.selection-ring::before, .selection-ring::after { content: ""; position: absolute; background: #ff5c42; }
-.selection-ring::before { width: 64px; height: 1px; left: -10px; top: 21px; }
-.selection-ring::after { height: 64px; width: 1px; top: -10px; left: 21px; }
-.selection-ring.is-active { display: block; }
 
 /* Informationskort */
 .info-panel, .floating-panel, .editor-panel { color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 15px; box-shadow: 0 12px 40px #0009; }
