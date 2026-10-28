@@ -124,9 +124,6 @@ wrapper.appendChild(selection);
 wrapper.appendChild(marker);
 wrapper.appendChild(art);
 
-// Sørg for, at sigtekornet ligger øverst
-const selection = wrapper.querySelector(".selection-ring");
-if (selection) wrapper.appendChild(selection);
 
     [marker, art].forEach(button => {
       stopMapGestures(button);
