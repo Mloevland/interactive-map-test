@@ -264,8 +264,9 @@ button:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3
 
 .element-overlay {
   position: relative;
-  width: 0;
-  height: 0;
+  display: block;
+  width: 1px;
+  height: 1px;
   overflow: visible;
   pointer-events: none;
 }
