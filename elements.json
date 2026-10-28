@@ -24,7 +24,7 @@
     "x": 53759.66841038281,
     "y": 17867.032114464953,
     "showMarker": true,
-    "showArt": false,
+    "showArt": true,
     "showHover": true,
     "artSize": 140,
     "rotation": 0
@@ -38,7 +38,7 @@
     "image": "assets/people.png",
     "x": 36180.265914198135,
     "y": 19224.96720602435,
-    "showMarker": false,
+    "showMarker": true,
     "showArt": true,
     "showHover": true,
     "artSize": 285,
