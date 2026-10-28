@@ -223,6 +223,7 @@ wrapper.appendChild(art);
   function selectElement(id) {
     selectedId = id;
     const item = selected();
+    if (!item) return;
 
     $("elementTitle").value = item.title;
     $("elementCategory").value = item.category;
@@ -334,7 +335,8 @@ wrapper.appendChild(art);
       showMarker: true,
       showArt: false,
       showHover: true,
-      artSize: 140
+      artSize: 140,
+      rotation: 0
     };
 
     elements.push(item);
@@ -382,47 +384,53 @@ $("deleteElement").addEventListener("click", () => {
     setEditorStatus("JSON-fil eksporteret.");
   });
 
+  let viewerInitialized = false;
+
+  function initializeViewer(nextViewer) {
+    if (!nextViewer || viewerInitialized) return;
+    viewer = nextViewer;
+    viewerInitialized = true;
+
+    elements.forEach(item => {
+      if (!overlays.has(item.id)) createOverlay(item);
+    });
+
+    $("viewer").addEventListener("click", event => {
+      if (!viewer || !editMode) return;
+      if (event.target.closest(
+        ".editor-panel, .site-header, .site-footer, .map-controls, " +
+        ".floating-panel, .info-panel, .map-hotspot, .map-art-object"
+      )) return;
+
+      const rect = viewer.container.getBoundingClientRect();
+      const pixel = new OpenSeadragon.Point(
+        event.clientX - rect.left,
+        event.clientY - rect.top
+      );
+      const viewportPoint = viewer.viewport.pointFromPixel(pixel);
+      const imagePoint = viewer.viewport.viewportToImageCoordinates(viewportPoint);
+      const item = selected();
+      if (!item) return;
+
+      item.x = Math.max(0, Math.min(62079, imagePoint.x));
+      item.y = Math.max(0, Math.min(62160, imagePoint.y));
+      updatePosition(item);
+      updateCoordinates(item);
+      elements.forEach(refreshElement);
+      save();
+      setEditorStatus(
+        "Placering opdateret: X " + Math.round(item.x) +
+        ", Y " + Math.round(item.y)
+      );
+    });
+  }
+
   document.addEventListener("map:ready", event => {
-    viewer = event.detail.viewer;
-    elements.forEach(createOverlay);
-
-    
-$("viewer").addEventListener("click", event => {
-  if (!viewer || !editMode) return;
-
-  // Ignorér klik på paneler, knapper og eksisterende elementer
-  if (event.target.closest(
-    ".editor-panel, .site-header, .site-footer, .map-controls, " +
-    ".floating-panel, .info-panel, .map-hotspot, .map-art-object"
-  )) return;
-
-  const rect = viewer.container.getBoundingClientRect();
-
-  const pixel = new OpenSeadragon.Point(
-    event.clientX - rect.left,
-    event.clientY - rect.top
-  );
-
-  const viewportPoint = viewer.viewport.pointFromPixel(pixel);
-  const imagePoint =
-    viewer.viewport.viewportToImageCoordinates(viewportPoint);
-
-  const item = selected();
-  if (!item) return;
-
-  item.x = Math.max(0, Math.min(62079, imagePoint.x));
-  item.y = Math.max(0, Math.min(62160, imagePoint.y));
-
-  updatePosition(item);
-  updateCoordinates(item);
-  elements.forEach(refreshElement);
-  save();
-
-  setEditorStatus(
-    "Placering opdateret: X " +
-    Math.round(item.x) + ", Y " + Math.round(item.y)
-  );
-});
-
+    initializeViewer(event.detail && event.detail.viewer);
   });
+
+  // Fallback hvis kortet blev indlæst, før interactions.js nåede at lytte.
+  if (window.mapViewer && window.mapViewer.isOpen()) {
+    initializeViewer(window.mapViewer);
+  }
 })();
