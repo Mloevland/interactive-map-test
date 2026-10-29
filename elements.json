@@ -17,10 +17,10 @@
   {
     "id": "element-1793184797929",
     "number": 2,
-    "title": "Philip II of Spain",
+    "title": "King of Portugal — Dom Sebastião",
     "category": "Personer",
-    "text": "At the centre of this elaborate vessel sits Philip II of Spain, identifiable by his crown, red cloak and the inscription referring to “Re Philippo Max.” He is surrounded by two armoured figures, one raising an arm and the other holding a decorated shield. The throne-like vessel carries a royal banner and globe-like objects. Rather than depicting an ordinary voyage, the scene symbolises Spanish royal power and its far-reaching presence across the Atlantic and the Americas.",
-    "image": "assets/people.png",
+    "text": "The crowned king wears a richly decorated gold crown, a red robe, a blue collar, and an elaborate white ruff. He has a narrow moustache and a pointed goatee, presenting an image of royal authority and dignity. The banner beneath his portrait reads Il Re de Portogallo, meaning The King of Portugal.\n\nThe portrait is believed to represent Dom Sebastião, who ruled Portugal from 1557 until his disappearance and presumed death at the Battle of Alcácer Quibir in Morocco in 1578. His disastrous military expedition left Portugal without a direct heir and triggered a succession crisis that led to the Portuguese Crown passing to Philip II of Spain in 1580.\n\nThe accompanying verse celebrates the king’s fame across the vast ocean and refers to fleets of armed ships travelling the seas. It reflects Portugal’s maritime prestige and the enduring reputation of its royal power during the Age of Exploration. Dom Sebastião’s disappearance also gave rise to Sebastianism, the legend that the lost king would one day return to save Portugal.",
+    "image": "assets/king.png",
     "x": 53759.66841038281,
     "y": 17867.032114464953,
     "showMarker": true,
