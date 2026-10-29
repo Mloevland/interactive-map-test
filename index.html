@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#171916">
-  <title>Udforsk det historiske kort</title>
+  <title>Monte's mythical creatures</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/openseadragon.min.js" defer></script>
   <script src="map.js" defer></script>
@@ -15,7 +15,7 @@
     <header class="site-header">
       <div class="brand">
         <div class="eyebrow">Interaktivt arkiv · Prototype</div>
-        <h1>Udforsk det historiske kort</h1>
+        <h1>Monte's mythical creatures</h1>
       </div>
       <nav class="map-controls" aria-label="Kortfunktioner">
         <label class="filter-control" for="categoryFilter">
@@ -29,6 +29,7 @@
             <option value="Andet">Andet</option>
           </select>
         </label>
+        <button class="control-button marker-toggle" id="toggleMarkers" type="button" aria-pressed="true" title="Skjul nummermarkører">Skjul talmarkører</button>
         <button class="control-button" id="zoomIn" type="button">＋ Zoom ind</button>
         <button class="control-button" id="zoomOut" type="button">− Zoom ud</button>
         <button class="control-button" id="home" type="button">Nulstil visning</button>
