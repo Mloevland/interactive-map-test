@@ -174,3 +174,19 @@ body {
   background-size: cover;
   background-attachment: fixed;
 }
+
+/* Light background with the animal illustrations */
+
+#viewer {
+  background-color: #EEECDE !important;
+  background-image: url("assets/Animals.png") !important;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+/* Let the background image show through the map viewer */
+#viewer .openseadragon-container,
+#viewer .openseadragon-canvas {
+  background-color: transparent !important;
+}
