@@ -28,6 +28,7 @@
   let elements = [structuredClone(DEFAULT_ITEM)];
   let selectedId = "rabbit";
   let activeCategory = "Alle";
+  let markersVisible = true;
   let unlocked = false;
   let editMode = false;
   const overlays = new Map();
@@ -168,6 +169,7 @@
     record.marker.title = item.title;
     record.marker.setAttribute("aria-label", `${item.number}: ${item.title}`);
     record.marker.classList.toggle("is-hidden", !item.showMarker);
+    record.marker.classList.toggle("global-hidden", !markersVisible && !editMode);
     record.marker.classList.toggle("no-hover", !item.showHover);
 
     record.art.title = item.title;
@@ -384,6 +386,7 @@
     $("editorPanel").classList.toggle("is-hidden", !enabled);
     $("editingHint").classList.toggle("is-hidden", !enabled);
     $("unlockEditor").textContent = enabled ? "✓ Redigering aktiv" : "✎ Redigér kort";
+    $("toggleMarkers").disabled = enabled;
     $("infoPanel").classList.add("is-hidden");
     if (enabled) {
       if (selected()) selectElement(selected().id);
@@ -570,6 +573,14 @@
     $(id).addEventListener("change", syncFields);
   });
   $("categoryFilter").addEventListener("change", applyCategoryFilter);
+  $("toggleMarkers").addEventListener("click", () => {
+    markersVisible = !markersVisible;
+    const button = $("toggleMarkers");
+    button.setAttribute("aria-pressed", String(markersVisible));
+    button.textContent = markersVisible ? "Skjul talmarkører" : "Vis talmarkører";
+    button.title = markersVisible ? "Skjul nummermarkører på kortet" : "Vis nummermarkører på kortet";
+    refreshAll();
+  });
   $("newElement").addEventListener("click", addNewElement);
   $("deleteElement").addEventListener("click", deleteSelectedElement);
   $("exportElements").addEventListener("click", exportElements);
