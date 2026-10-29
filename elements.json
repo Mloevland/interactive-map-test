@@ -26,8 +26,8 @@
     "showMarker": true,
     "showArt": true,
     "showHover": true,
-    "artSize": 140,
-    "rotation": 0
+    "artSize": 150,
+    "rotation": -123
   },
   {
     "id": "element-1793184832232",
